@@ -1,2 +1,2 @@
-# mud-pulse
-Exhibit media interactive to demonstrate the science behind Mud Pulse Telemetry
+# Stel-duino
+The primary purpose of this repository is to serve as boilerplate for quick exhibit prototyping, in tandem with [arduino-base](https://github.com/scimusmn/arduino-base).
