@@ -1,6 +1,6 @@
-#include "Libraries/AnalogInput.h"
-#include "Libraries/Button.h"
-#include "Libraries/SerialManager.h"
+#include "arduino-base/Libraries/AnalogInput.h"
+#include "arduino-base/Libraries/Button.h"
+#include "arduino-base/Libraries/SerialManager.h"
 
 SerialManager manager;
 
