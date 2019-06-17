@@ -7,6 +7,7 @@ import propTypes from 'prop-types';
 import moment from 'moment';
 import ChartComponent from 'react-chartjs-2';
 import 'chartjs-plugin-streaming';
+import { WAKE_ARDUINO } from '../Serial/arduinoConstants';
 import withSerialCommunication from '../Serial/SerialHOC';
 
 class MeasurementFromSerial extends Component {
@@ -18,13 +19,15 @@ class MeasurementFromSerial extends Component {
       borderColor: props.borderColor,
       chartData: [],
       chartLabels: [],
-      newData: {},
+      handshake: false,
       label: props.label,
       message: props.message,
+      newData: {},
       realtime: props.realtime,
       type: props.type,
     };
 
+    this.checkHandshake = this.checkHandshake.bind(this);
     this.clearNewData = this.clearNewData.bind(this);
     this.getNewData = this.getNewData.bind(this);
     this.onData = this.onData.bind(this);
@@ -36,6 +39,7 @@ class MeasurementFromSerial extends Component {
     const { setOnDataCallback } = this.props;
     setOnDataCallback(this.onData);
     document.addEventListener('keydown', this.handleReset);
+    this.checkHandshake();
   }
 
   shouldComponentUpdate() {
@@ -102,9 +106,11 @@ class MeasurementFromSerial extends Component {
         streaming: {
           afterUpdate: this.afterUpdate,
           delay: 0,
-          frameRate: 30,
+          duration: 3000,
+          frameRate: 20,
           onRefresh: this.refreshData,
           refresh: 50,
+          ttl: 3000,
         },
       };
       chartOptions.scales.xAxes.push({ type: 'realtime' });
@@ -126,7 +132,7 @@ class MeasurementFromSerial extends Component {
     chart.data.datasets[0].data.push({
       // Subtracting a number from x, is a hacky way to move data to the center of the graph
       // TODO: Need to find an elegant way to handle this
-      x: newData.x - 4000,
+      x: newData.x,
       y: newData.y,
     });
 
@@ -143,6 +149,15 @@ class MeasurementFromSerial extends Component {
       chartLabels: [],
       newData: {},
     });
+  }
+
+  checkHandshake() {
+    const { sendData } = this.props;
+    const { handshake } = this.state;
+    sendData(WAKE_ARDUINO);
+    setTimeout(() => {
+      if (!handshake) this.checkHandshake();
+    }, 3000);
   }
 
   render() {
@@ -191,6 +206,7 @@ MeasurementFromSerial.propTypes = {
   label: propTypes.string.isRequired,
   message: propTypes.string.isRequired,
   realtime: propTypes.bool,
+  sendData: propTypes.func.isRequired,
   setOnDataCallback: propTypes.func.isRequired,
   type: propTypes.string,
 };
