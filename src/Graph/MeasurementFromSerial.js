@@ -25,6 +25,8 @@ class MeasurementFromSerial extends Component {
       newData: {},
       realtime: props.realtime,
       type: props.type,
+      yMax: props.yMax,
+      yMin: props.yMin,
     };
 
     this.checkHandshake = this.checkHandshake.bind(this);
@@ -78,7 +80,7 @@ class MeasurementFromSerial extends Component {
 
   getChartOptions() {
     /* eslint prefer-const: 0 */
-    const { realtime } = this.state;
+    const { realtime, yMax, yMin } = this.state;
 
     let chartOptions = {
       maintainAspectRatio: false,
@@ -93,7 +95,8 @@ class MeasurementFromSerial extends Component {
         yAxes: [
           {
             ticks: {
-              beginAtZero: true,
+              max: yMax,
+              min: yMin,
             },
           },
         ],
@@ -106,11 +109,11 @@ class MeasurementFromSerial extends Component {
         streaming: {
           afterUpdate: this.afterUpdate,
           delay: 0,
-          duration: 3000,
+          duration: 10000,
           frameRate: 20,
           onRefresh: this.refreshData,
-          refresh: 50,
-          ttl: 3000,
+          refresh: 100,
+          ttl: 10000,
         },
       };
       chartOptions.scales.xAxes.push({ type: 'realtime' });
@@ -130,8 +133,9 @@ class MeasurementFromSerial extends Component {
     const newData = this.getNewData();
 
     chart.data.datasets[0].data.push({
-      // Subtracting a number from x, is a hacky way to move data to the center of the graph
-      // TODO: Need to find an elegant way to handle this
+      // Subtracting a number from x, is a hacky way to move data
+      // to the center of the graph, if we need it
+
       x: newData.x,
       y: newData.y,
     });
@@ -209,6 +213,8 @@ MeasurementFromSerial.propTypes = {
   sendData: propTypes.func.isRequired,
   setOnDataCallback: propTypes.func.isRequired,
   type: propTypes.string,
+  yMax: propTypes.number,
+  yMin: propTypes.number,
 };
 
 MeasurementFromSerial.defaultProps = {
@@ -216,6 +222,8 @@ MeasurementFromSerial.defaultProps = {
   borderColor: 'rgb(255, 99, 132)',
   realtime: false,
   type: 'bar',
+  yMax: 1,
+  yMin: 0,
 };
 
 const MeasurementFromSerialCommunication = withSerialCommunication(MeasurementFromSerial);
