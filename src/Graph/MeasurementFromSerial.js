@@ -158,10 +158,13 @@ class MeasurementFromSerial extends Component {
   checkHandshake() {
     const { sendData } = this.props;
     const { handshake } = this.state;
-    sendData(WAKE_ARDUINO);
-    setTimeout(() => {
-      if (!handshake) this.checkHandshake();
-    }, 3000);
+
+    if (!handshake) {
+      sendData(WAKE_ARDUINO);
+      setTimeout(() => {
+        this.checkHandshake();
+      }, 3000);
+    }
   }
 
   render() {
